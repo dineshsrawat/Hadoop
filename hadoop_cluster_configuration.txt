@@ -1,0 +1,134 @@
+I have 7 Virtual machine where 3 use for datanode/tasktracker and one for namenode and jobtracker
+namenode/jobtracker= nn1.cluster.com/jt.cluster.com
+datanode/tasktracker= dn1.cluster.com, dn2.cluster.com, dn3.cluster.com
+secondarynamenode=nn2.cluster.com
+client machine :- client.cluster.com
+
+note:- installed namenode and job tracker in single machine as well or we use 2 datanode and 1 client machine(its optional)
+===================================================
+install java,hadoop and create hadoop user, create partition and create directory and mount it to created partition.
+set the hadoop and java path in .bash_profile (depends on which linux you using) and change the ownership of all hadoop filesystem using directory
+create the symbolic link for hadoop (optional)
+
+please do same as in other hadoop nodes (datanode/jobtracker node/secondary namenode)
+============================================================
+configure the namenode
+------------------
+$vi hadoop/conf/core-site.xml
+
+<configuration>
+<property>
+	<name>fs.default.name</name>
+	<value>hdfs://nn1.cluster.com:8020</value>
+</property>
+    </configuration>
+--------------------------------
+$ cat hadoop/conf/hdfs-site.xml
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+<property>
+        <name>dfs.name.dir</name>
+        <value>/namenode/data</value>
+        <final>true</final>
+</property>
+</configuration>
+------------------------------------
+hadoop namenode -format
+------------------------------------
+ls -l /namenode/data
+cat /namenode/data/current/VERSION
+hadoop-daemon.sh start namenode
+jps
+==============================================================
+configure datanode
+vi /home/hadoop/hadoop/conf/hadoop-env.sh
+
+export JAVA_HOME=/usr/java/jdk1.8.0_11/
+export HADOOP_HOME=/home/hadoop/hadoop
+export HADOOP_PID_DIR=/home/hadoop/pids
+export HADOOP_HEAPSIZE=500
+----------------------------------------------
+cat hadoop/conf/core-site.xml
+
+<configuration>
+<property>
+<name>fs.default.name</name>
+<value>hdfs://nn1.cluster.com:8020</value>
+</property>
+</configuration>
+-----------------------------------------------
+cat hadoop/conf/hdfs-site.xml
+
+<configuration>
+<property>
+        <name>dfs.data.dir</name>
+        <value>/datanode/data</value>
+        <final>true</final>
+</property>
+<property>
+        <name>dfs.replication</name>
+        <value>1</value>
+</property>
+</configuration>
+---------------------------------------------
+start the datanode
+hadoop-daemon.sh start datanode
+cat /datanode/data/current/VERSION
+jps
+hadoop dfsadmin -report
+----------------------------------------
+copy core-site.xml,hdfs-default.xml and hadoop-env.sh file in all 2 nodes from datanode1
+
+scp /home/hadoop/hadoop/conf/* <datanodeipaddress>:/home/hadoop/hadoop/conf
+==========================================================
+
+configure jobtracker
+
+Put the jobtracker entry in Hadoop/conf/mapred-site.xml
+
+cat hadoop/conf/mapred-site.xml
+
+<configuration>
+<property>
+<name>mapred.job.tracker</name>
+<value>nn1.cluster.com:9001</value>
+</property>
+</configuration>
+--------------------
+Now Start the jobtracker
+hadoop-daemon.sh start jobtracker
+---------------------------
+jps
+===========================================
+configure tasktracker in datanode
+
+ubuntu@ip-172-31-41-24:~$ cat hadoop/conf/mapred-site.xml
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+<property>
+<name>mapred.job.tracker</name>
+<value>nn1.cluster.com:9001</value>
+</property>
+</configuration>
+------------------------
+start the tasktracker
+hadoop-daemon.sh start tasktracker
+-----------------------
+jps
+=========================================
+
+
+
+
+
+
+
+
