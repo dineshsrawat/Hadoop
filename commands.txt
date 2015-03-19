@@ -1,0 +1,35 @@
+hadoop fs -put test
+hadoop fs -ls /
+hadoop fs -mkdir /projects
+hadoop fsck /test -files-blocks -locations
+hadoop dfsadmin report
+hadoop fs -copyToLocal /list_of_datanodes   (copy file from hadoop to local disk)
+
+hadoop fs -Ddfs.replication=2 -put largefile.txt /projects
+hadoop dfs -setrep 2 /test   (Now set replication 2 for existing file)
+-----------------------------------
+Creating Quota:-
+hadoop fs -count /projects
+hadoop dfsadmin -setQuota 10 /projects   (set the file creation quota)
+hadoop fs -count -q /projects
+hadoop dfsadmin -setSpaceQuota 200M /projects  (set the space quota)
+hadoop fs -count -q /projects
+------------------------------------------
+distcp command to copy /projects to /new on the same cluster
+hadoop distcp hdfs://hdpname1.hadoop.com:9001/projects/ hdfs://hdpname1.hadoop.com:9001/new
+--------------------------------------------------------------
+Without increasing quota we can change the blocksize (in command line) and copied file to hadoop
+hadoop fs -Ddfs.replication=2 -Ddfs.block.size=100663296 -put largefile.txt /projects
+=============================================================
+hadoop balancer
+hadoop balancer -threshold 10 (10 is by default and small cluster have more value compare then large cluster)
+start-balancer.sh
+hadoop dfsadmin -setBalancerBandwidth 5000 (bytes in per second)
+example:-
+N= number of node
+S= space size (storage)
+Total=NS
+it means 10 times of node=30% if we have 3 node and each have 12GB
+================================
+
+

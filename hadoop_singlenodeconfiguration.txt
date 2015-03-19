@@ -1,0 +1,133 @@
+﻿ first we need OS any linux
+Jdk above 1.6
+hadoop--> stable1 (1.2.1)download the tar
+==============================================================
+INSTALL THE HADOOP AND CREATE THE USER
+
+useradd hadoop
+id hadoop
+passwd hadoop
+tar -xzvf hadoop-1.2.1.tar.gz -C /home/hadoop/
+ls -l /home/hadoop
+chown -R hadoop:hadoop /home/hadoop/
+su - hadoop
+ls -l
+ln -s hadoop-1.2.1 hadoop
+
+SET THE HADOOP PATH
+HADOOP_HOME=/home/hadoop/hadoop
+PATH=$HADOOP_HOME/bin:$PATH -------> (PATH=$HADOOP_HOME/bl;lin:$JAVA_HOME/bin:$PATH)
+. .bash_profile
+
+===================================================
+
+install the java and set the path
+
+which java ----> check the which java is user
+vi .bash_profile  ----------> Set the PATH of JAVA
+JAVA_HOME=/usr/java/jdk1.8.0_11
+PATH=$JAVA_HOME/bin:$PATH
+save it
+jps
+====================================================
+CONFIGURE THE HADOOP
+vi /home/hadoop/hadoop/conf/hadoop-env.sh
+
+export JAVA_HOME=/usr/java/jdk1.8.0_11/
+export HADOOP_HOME=/home/hadoop/hadoop
+export HADOOP_PID_DIR=/home/hadoop/pids
+export HADOOP_HEAPSIZE=500
+--------------------------------------------------
+cd /home/hadoop/hadoop/conf/
+
+$vi hadoop/conf/core-site.xml
+
+<configuration>
+<property>
+	<name>fs.default.name</name>
+	<value>hdfs://nn1.cluster.com:9000</value>  #we can use ip address also and by default port is 8020
+</property>
+    </configuration>
+------------------------------------------------------
+vi hdfs-site.xml
+
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+<property>
+        <name>dfs.name.dir</name>
+        <value>/namenode/data</value>  # this entry for namenode only 
+        <final>true</final>
+</property>
+<property>
+        <name>dfs.data.dir</name>
+        <value>/datanode/data</value>  # this entry for datanode only 
+        <final>true</final>
+</property>
+<property>
+        <name>dfs.replication</name>
+        <value>1</value>
+</property>
+
+</configuration>
+-------------------------------------------------
+chown the owner ship of /namenode/data dir
+
+chown -R hadoop:hadoop /namenode/data
+-----------------------------------------------
+Format the hadoop dir
+$ Hadoop namenode –format
+Check the /namenode/data directory.
+ls -l /namenode/data
+----------------------------------------------------------------------
+Check the Hadoop clusterID
+cat /namenode/data/current/VERSION
+-----------------------------------------------
+Now start the namenode.
+
+$ hadoop-daemon.sh start namenode
+
+Check namenode service is started or not ( if not started will check logs(…..))
+
+jps
+
+check through browser
+namenodename:50070
+----------------------------------------------------------
+hadoop dfsadmin -report
+----------------------------------------
+set the datanode
+vi hdfs-site.xml
+<property>
+        <name>dfs.data.dir</name>
+        <value>/datanode/data</value>  # this entry for datanode only 
+        <final>true</final>
+</property>
+-----------------------------------
+start the datanode
+hadoop-daemon.sh start datanode
+jps
+check the namespace id it should be same as namenode namespace id
+cat /datanode/data/current/VERSION
+------------------------------------
+create a file and load in hadoop filesystem
+vi test
+hadoop fs -put test /
+hadoop fs -ls /
+ls -l /datanode/data/current
+------------------------------------------------
+jar -ft hadoop/hadoop-core-1.2.1.jar| grep core-default
+jar -ft hadoop/hadoop-core-1.2.1.jar| grep hdfs-site
+jar -xf hadoop/hadoop-core-1.2.1.jar hdfs-default.xml
+============================================================
+
+
+
+
+
+
+
+
